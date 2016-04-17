@@ -48,94 +48,139 @@ def slash_command(request):
                     )
                 except Game.DoesNotExist:
                     pass
-                if game and len(command_options) == 2:
+                # /tintg tictac show
+                if command_options[1] == 'show' and game:
+                    try:
+                        current_player = Player.objects.get(
+                            game=game,
+                            is_current=True,
+                        )
+                    except Player.DoesNotExist:
+                        return JsonResponse({
+                            'text': ERROR,
+                        })
                     return JsonResponse({
-                        'text': GAME_ALREADY_STARTED
+                        'response_type': 'in_channel',
+                        'text': "It is {}'s turn.".format(current_player),
+                        'attachments': [
+                            {'text': game.board_state_to_slack()},
+                        ]
                     })
-                else:
-                    # /tintg tictac move {move}
-                    if command_options[1] == 'move':
-                        players = Player.objects.filter(game=game)
+                # /tintg tictac forfeit
+                if command_options[1] in ('forfeit', 'quit') and game:
+                    players = Player.objects.filter(game=game)
+                    try:
+                        current_player = Player.objects.get(
+                            game=game,
+                            name=request.POST.get('user_name')
+                        )
+                    except Player.DoesNotExist:
                         try:
-                            player1 = players.get(
-                                name=request.POST.get('user_name').strip('@'),
+                            current_player = Player.objects.get(
+                                game=game,
+                                remote_user_id=request.POST.get('user_id')
                             )
                         except Player.DoesNotExist:
-                            try:
-                                player1 = players.get(
-                                    remote_user_id=request.POST.get('user_id'),
-                                )
-                            except Player.DoesNotExist:
-                                return JsonResponse({
-                                    'text': ERROR,
-                                })
+                            return JsonResponse({
+                                'text': ERROR,
+                            })
+                    other_player = players.exclude(id=current_player.id)[0]
+                    game.is_active = False
+                    game.save()
+                    return JsonResponse({
+                        'response_type': 'in_channel',
+                        'text': "{} forfeits! {} wins the game!".format(
+                            current_player, other_player,
+                        )
+                    })
+                # /tintg tictac move {move}
+                if command_options[1] == 'move' and game:
+                    players = Player.objects.filter(game=game)
+                    try:
+                        player1 = players.get(
+                            name=request.POST.get('user_name').strip('@'),
+                        )
+                    except Player.DoesNotExist:
                         try:
-                            player2 = players.get(is_current=False)
+                            player1 = players.get(
+                                remote_user_id=request.POST.get('user_id'),
+                            )
                         except Player.DoesNotExist:
                             return JsonResponse({
-                                    'text': ERROR,
-                                })
-                        if not player1.is_current:
-                            return JsonResponse({
-                                'text': WRONG_TURN
+                                'text': ERROR,
                             })
-                        valid = game.make_move_if_valid(' '.join(command_options[2:]))
-                        if valid:
-                            if game.is_won():
-                                return JsonResponse({
-                                    'response_type': 'in_channel',
-                                    'text': "{} has won the game!".format(player1)
-                                })
-                            player2 = players.get(is_current=False)
-                            player1.is_current = False
-                            player1.save()
-                            player2.is_current = True
-                            player2.save()
+                    try:
+                        player2 = players.get(is_current=False)
+                    except Player.DoesNotExist:
+                        return JsonResponse({
+                                'text': ERROR,
+                            })
+                    if not player1.is_current:
+                        return JsonResponse({
+                            'text': WRONG_TURN
+                        })
+                    valid = game.make_move_if_valid(' '.join(command_options[2:]))
+                    if valid:
+                        if game.is_won():
                             return JsonResponse({
                                 'response_type': 'in_channel',
-                                'text': "{} has played. It's {}'s turn now.".format(
-                                    player1, player2,
-                                ),
-                                'attachments': [
-                                    {'text': game.board_state_to_slack()}
-                                ]
+                                'text': "{} has won the game!".format(player1)
                             })
-                        else:
-                            return JsonResponse({
-                                'text': INVALID_MOVE,
-                            })
-                    else:
-                        # /tintg tictac {username}
-                        game = Game.objects.start_game(
-                            kind=str(Game.TICTACTOE),
-                            channel=request.POST.get('channel_id'),
-                        )
-                        player1 = Player.objects.create(
-                            game=game,
-                            name=request.POST.get('user_name').strip('@'),
-                            is_current=True,
-                            remote_user_id=request.POST.get('user_id'),
-                        )
-                        player2 = Player.objects.create(
-                            game=game,
-                            name=command_options[1].strip('@'),
-                        )
+                        player2 = players.get(is_current=False)
+                        player1.is_current = False
+                        player1.save()
+                        player2.is_current = True
+                        player2.save()
                         return JsonResponse({
                             'response_type': 'in_channel',
-                            'text': "{} has challenged {} to TicTacToe! It is {}'s turn.".format(
-                                player1, player2, player1,
+                            'text': "{} has played. It's {}'s turn now.".format(
+                                player1, player2,
                             ),
                             'attachments': [
                                 {'text': game.board_state_to_slack()}
                             ]
                         })
+                    else:
+                        return JsonResponse({
+                            'text': INVALID_MOVE,
+                        })
+                # /tintg tictac {username}
+                else:
+                    if game:
+                        return JsonResponse({
+                            'text': GAME_ALREADY_STARTED
+                        })
+                    game = Game.objects.start_game(
+                        kind=str(Game.TICTACTOE),
+                        channel=request.POST.get('channel_id'),
+                    )
+                    player1 = Player.objects.create(
+                        game=game,
+                        name=request.POST.get('user_name').strip('@'),
+                        is_current=True,
+                        remote_user_id=request.POST.get('user_id'),
+                    )
+                    player2 = Player.objects.create(
+                        game=game,
+                        name=command_options[1].strip('@'),
+                    )
+                    return JsonResponse({
+                        'response_type': 'in_channel',
+                        'text': "{} has challenged {} to TicTacToe! It is {}'s turn.".format(
+                            player1, player2, player1,
+                        ),
+                        'attachments': [
+                            {'text': game.board_state_to_slack()}
+                        ]
+                    })
 
         if command_text.lower() == 'hello':
             return JsonResponse({
                 'text': HELLO,
             })
         return JsonResponse({
-            'text': HOW_TO_START
+            'text': HOW_TO_START,
+            'mrkdwn': True,
         })
 
 

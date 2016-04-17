@@ -5,6 +5,7 @@ from games.factories import (
     GameFactory,
     PlayerFactory,
 )
+from games.models import Game
 from . import factories
 from . import views
 
@@ -268,4 +269,79 @@ class SlashCommandTests(TestCase):
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'text': views.INVALID_MOVE
         })
+
+    def test_tictac_display(self):
+        game = GameFactory.create(channel='C98765')
+        game.state = {
+            'last_move': 'O',
+            'board': [['X',0,0],[0,'X',0],[0,0,'O']]
+        }
+        game.save()
+        player1 = PlayerFactory.create(
+            game=game,
+            name='Stewart',
+            is_current=True,
+        )
+        player2 = PlayerFactory.create(game=game, name='cal')
+        request = self.request_factory.post(
+            '/slack/',
+            {
+                'token': self.team.token,
+                'team_id': self.team.slack_id,
+                'team_domain': self.team.domain,
+                'channel_id': 'C98765',
+                'channel_name': 'general',
+                'user_id': 'U12345',
+                'user_name': 'Stewart',
+                'command': '/tintg',
+                'text': 'tictac show',
+                'response_url': 'https://hooks.slack.com/commands/1234/5678',
+            },
+        )
+        response = views.slash_command(request)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), {
+            'response_type': 'in_channel',
+            'text': "It is Stewart's turn.",
+            'attachments': [
+                {
+                    'text': ":x: :white_medium_square: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: \n:white_medium_square: :white_medium_square: :o: "
+                }
+            ]
+        })
+
+    def test_tictac_forfeit(self):
+        game = GameFactory.create(channel='C98765')
+        game.state = {
+            'last_move': 'O',
+            'board': [['X',0,0],[0,'X',0],[0,0,'O']]
+        }
+        game.save()
+        player1 = PlayerFactory.create(
+            game=game,
+            name='Stewart',
+            is_current=True,
+        )
+        player2 = PlayerFactory.create(game=game, name='cal')
+        request = self.request_factory.post(
+            '/slack/',
+            {
+                'token': self.team.token,
+                'team_id': self.team.slack_id,
+                'team_domain': self.team.domain,
+                'channel_id': 'C98765',
+                'channel_name': 'general',
+                'user_id': 'U12345',
+                'user_name': 'Stewart',
+                'command': '/tintg',
+                'text': 'tictac forfeit',
+                'response_url': 'https://hooks.slack.com/commands/1234/5678',
+            },
+        )
+        response = views.slash_command(request)
+        self.assertJSONEqual(str(response.content, encoding='utf8'), {
+            'response_type': 'in_channel',
+            'text': "Stewart forfeits! cal wins the game!",
+        })
+        game = Game.objects.get(id=game.id)
+        self.assertFalse(game.is_active)
 
