@@ -43,7 +43,9 @@ def slash_command(request):
             })
         command_text = request.POST.get('text')
         if command_text.startswith('tictac'):
-            command_options = command_text.split(' ')
+            command_options = [
+                command for command in command_text.split(' ') if command
+            ]
             # /tintg tictac
             if len(command_options) < 2:
                 return JsonResponse({
