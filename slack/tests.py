@@ -123,7 +123,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': "Stewart has challenged cal to TicTacToe! It is Stewart's turn.",
+            'text': "<@U12345:Stewart> has challenged cal to TicTacToe! It is <@U12345:Stewart>'s turn.",
             'attachments': [
                 {
                     'text': ":white_medium_square: :white_medium_square: :white_medium_square: \n:white_medium_square: :white_medium_square: :white_medium_square: \n:white_medium_square: :white_medium_square: :white_medium_square: "
@@ -162,7 +162,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': "Stewart has played. It's cal's turn now.",
+            'text': "<@U12345:Stewart> has played. It's <@U12345:cal>'s turn now.",
             'attachments': [
                 {
                     'text': ":white_medium_square: :white_medium_square: :x: \n:white_medium_square: :white_medium_square: :white_medium_square: \n:white_medium_square: :white_medium_square: :white_medium_square: "
@@ -234,7 +234,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': 'Stewart has won the game!',
+            'text': '<@U12345:Stewart> has won the game!',
             'attachments': [{
                 'text': ":white_medium_square: :x: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: "
             }]
@@ -304,7 +304,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': "It is Stewart's turn.",
+            'text': "It is <@U12345:Stewart>'s turn.",
             'attachments': [
                 {
                     'text': ":x: :white_medium_square: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: \n:white_medium_square: :white_medium_square: :o: "

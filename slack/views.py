@@ -68,36 +68,24 @@ def slash_command(request):
                     })
                 return JsonResponse({
                     'response_type': 'in_channel',
-                    'text': "It is {}'s turn.".format(current_player),
+                    'text': "It is {}'s turn.".format(current_player.slack_display),
                     'attachments': [
                         {'text': game.board_state_to_slack()},
                     ]
                 })
             # /tintg tictac forfeit
             if command_options[1] in ('forfeit', 'quit') and game:
-                players = Player.objects.filter(game=game)
-                try:
-                    current_player = Player.objects.get(
-                        game=game,
-                        name=request.POST.get('user_name')
-                    )
-                except Player.DoesNotExist:
-                    try:
-                        current_player = Player.objects.get(
-                            game=game,
-                            remote_user_id=request.POST.get('user_id')
-                        )
-                    except Player.DoesNotExist:
-                        return JsonResponse({
-                            'text': ERROR,
-                        })
-                other_player = players.exclude(id=current_player.id)[0]
+                player1, player2 = get_players(game, request.POST)
+                if not player1 or not player2:
+                    return JsonResponse({
+                        'text': ERROR,
+                    })
                 game.is_active = False
                 game.save()
                 return JsonResponse({
                     'response_type': 'in_channel',
                     'text': "{} forfeits! {} wins the game!".format(
-                        current_player, other_player,
+                        player1, player2,
                     )
                 })
             # /tintg tictac help
@@ -111,26 +99,11 @@ def slash_command(request):
                 })
             # /tintg tictac move {move}
             if command_options[1] == 'move' and game:
-                players = Player.objects.filter(game=game)
-                try:
-                    player1 = players.get(
-                        name=request.POST.get('user_name').strip('@'),
-                    )
-                except Player.DoesNotExist:
-                    try:
-                        player1 = players.get(
-                            remote_user_id=request.POST.get('user_id'),
-                        )
-                    except Player.DoesNotExist:
-                        return JsonResponse({
-                            'text': ERROR,
-                        })
-                try:
-                    player2 = players.get(is_current=False)
-                except Player.DoesNotExist:
+                player1, player2 = get_players(game, request.POST)
+                if not player1 or not player2:
                     return JsonResponse({
-                            'text': ERROR,
-                        })
+                        'text': ERROR,
+                    })
                 if not player1.is_current:
                     return JsonResponse({
                         'text': WRONG_TURN
@@ -142,12 +115,11 @@ def slash_command(request):
                         game.save()
                         return JsonResponse({
                             'response_type': 'in_channel',
-                            'text': "{} has won the game!".format(player1),
+                            'text': "{} has won the game!".format(player1.slack_display),
                             'attachments': [{
                                 'text': game.board_state_to_slack(),
                             }]
                         })
-                    player2 = players.get(is_current=False)
                     player1.is_current = False
                     player1.save()
                     player2.is_current = True
@@ -155,7 +127,7 @@ def slash_command(request):
                     return JsonResponse({
                         'response_type': 'in_channel',
                         'text': "{} has played. It's {}'s turn now.".format(
-                            player1, player2,
+                            player1.slack_display, player2.slack_display,
                         ),
                         'attachments': [
                             {'text': game.board_state_to_slack()}
@@ -188,7 +160,9 @@ def slash_command(request):
                 return JsonResponse({
                     'response_type': 'in_channel',
                     'text': "{} has challenged {} to TicTacToe! It is {}'s turn.".format(
-                        player1, player2, player1,
+                        player1.slack_display, 
+                        player2.slack_display,
+                        player1.slack_display,
                     ),
                     'attachments': [
                         {'text': game.board_state_to_slack()}
@@ -203,3 +177,27 @@ def slash_command(request):
             'text': HOW_TO_START,
             'mrkdwn': True,
         })
+
+def get_players(game, command_data):
+    player1 = None,
+    player2 = None
+    players = Player.objects.filter(game=game)
+    try:
+        player1 = players.get(
+            name=command_data.get('user_name').strip('@'),
+        )
+        player1.remote_user_id = command_data.get('user_id')
+        player1.save()
+    except Player.DoesNotExist:
+        try:
+            player1 = players.get(
+                remote_user_id=command_data.get('user_id'),
+            )
+        except Player.DoesNotExist:
+            pass
+    try:
+        player2 = players.get(is_current=False)
+    except Player.DoesNotExist:
+        pass
+
+    return player1, player2
