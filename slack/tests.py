@@ -234,7 +234,10 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': 'Stewart has won the game!'
+            'text': 'Stewart has won the game!',
+            'attachments': [{
+                'text': ":white_medium_square: :x: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: "
+            }]
         })
 
     def test_tictac_invalid_move(self):

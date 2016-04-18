@@ -133,9 +133,14 @@ def slash_command(request):
                     valid = game.make_move_if_valid(' '.join(command_options[2:]))
                     if valid:
                         if game.is_won():
+                            game.is_active = False
+                            game.save()
                             return JsonResponse({
                                 'response_type': 'in_channel',
-                                'text': "{} has won the game!".format(player1)
+                                'text': "{} has won the game!".format(player1),
+                                'attachments': [{
+                                    'text': game.board_state_to_slack(),
+                                }]
                             })
                         player2 = players.get(is_current=False)
                         player1.is_current = False
