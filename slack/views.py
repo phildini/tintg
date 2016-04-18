@@ -70,7 +70,7 @@ def slash_command(request):
                     })
                 return JsonResponse({
                     'response_type': 'in_channel',
-                    'text': "It is {}'s turn.".format(current_player.slack_display),
+                    'text': "It is {}'s turn.".format(current_player),
                     'attachments': [
                         {'text': game.board_state_to_slack()},
                     ]
@@ -117,7 +117,7 @@ def slash_command(request):
                         game.save()
                         return JsonResponse({
                             'response_type': 'in_channel',
-                            'text': "{} has won the game!".format(player1.slack_display),
+                            'text': "{} has won the game!".format(player1),
                             'attachments': [{
                                 'text': game.board_state_to_slack(),
                             }]
@@ -129,7 +129,7 @@ def slash_command(request):
                     return JsonResponse({
                         'response_type': 'in_channel',
                         'text': "{} has played. It's {}'s turn now.".format(
-                            player1.slack_display, player2.slack_display,
+                            player1, player2,
                         ),
                         'attachments': [
                             {'text': game.board_state_to_slack()}
@@ -166,9 +166,9 @@ def slash_command(request):
                 return JsonResponse({
                     'response_type': 'in_channel',
                     'text': "{} has challenged {} to TicTacToe! It is {}'s turn.".format(
-                        player1.slack_display, 
-                        player2.slack_display,
-                        player1.slack_display,
+                        player1, 
+                        player2,
+                        player1,
                     ),
                     'attachments': [
                         {'text': game.board_state_to_slack()}
