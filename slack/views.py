@@ -26,6 +26,12 @@ TICTAC_HELP = """`/tintg tictac [username]` - starts a new game\n`/tintg tictac 
 @csrf_exempt
 def slash_command(request):
 
+    if request.method == 'GET':
+        return render(
+            request=request,
+            template_name='slash_command.html'
+        )
+
     if request.method == 'POST':
         try:
             team = Team.objects.get(token=request.POST.get('token'))
