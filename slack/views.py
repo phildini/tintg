@@ -99,7 +99,10 @@ def slash_command(request):
                 if command_options[1] == 'help':
                     return JsonResponse({
                         'text': "Help for tic-tac-toe",
-                        'attachments': [{'text': TICTAC_HELP}],
+                        'attachments': [{
+                            'text': TICTAC_HELP,
+                            'mrkdwn_in': ["text"],
+                        }],
                     })
                 # /tintg tictac move {move}
                 if command_options[1] == 'move' and game:
