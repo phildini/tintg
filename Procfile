@@ -1,0 +1,1 @@
+web: gunicorn tintg.wsgi --log-file -

@@ -20,6 +20,8 @@ WRONG_TURN = "Whoops! It's not your turn to play."
 
 INVALID_MOVE = "Sorry, that's not a valid move."
 
+TICTAC_HELP = """`/tintg tictac [username]` - starts a new game\n`/tintg tictac move [space]` - play in an empty space\n`/tintg tictac show` - show current board state\n`/tintg tictac forfeit` - leave a game you're playing\n`/tintg tictac help` - display this help"""
+
 
 @csrf_exempt
 def slash_command(request):
@@ -92,6 +94,12 @@ def slash_command(request):
                         'text': "{} forfeits! {} wins the game!".format(
                             current_player, other_player,
                         )
+                    })
+                # /tintg tictac help
+                if command_options[1] == 'help':
+                    return JsonResponse({
+                        'text': "Help for tic-tac-toe",
+                        'attachments': [{'text': TICTAC_HELP}],
                     })
                 # /tintg tictac move {move}
                 if command_options[1] == 'move' and game:

@@ -83,47 +83,47 @@ class Game(models.Model):
             piece = 'X'
         else:
             piece = 'O'
-        if int(move) == 1 or move in self.MOVE_OPTIONS[1]:
+        if move == '1' or move in self.MOVE_OPTIONS[1]:
             if board[0][0] == 0:
                 is_valid = True
                 board[0][0] = piece
                 last_move = piece
-        if int(move) == 2 or move in self.MOVE_OPTIONS[2]:
+        if move == '2' or move in self.MOVE_OPTIONS[2]:
             if board[0][1] == 0:
                 is_valid = True
                 board[0][1] = piece
                 last_move = piece
-        if int(move) == 3 or move in self.MOVE_OPTIONS[3]:
+        if move == '3' or move in self.MOVE_OPTIONS[3]:
             if board[0][2] == 0:
                 is_valid = True
                 board[0][2] = piece
                 last_move = piece
-        if int(move) == 4 or move in self.MOVE_OPTIONS[4]:
+        if move == '4' or move in self.MOVE_OPTIONS[4]:
             if board[1][0] == 0:
                 is_valid = True
                 board[1][0] = piece
                 last_move = piece
-        if int(move) == 5 or move in self.MOVE_OPTIONS[5]:
+        if move == '5' or move in self.MOVE_OPTIONS[5]:
             if board[1][1] == 0:
                 is_valid = True
                 board[1][1] = piece
                 last_move = piece
-        if int(move) == 6 or move in self.MOVE_OPTIONS[6]:
+        if move == '6' or move in self.MOVE_OPTIONS[6]:
             if board[1][2] == 0:
                 is_valid = True
                 board[1][2] = piece
                 last_move = piece
-        if int(move) == 7 or move in self.MOVE_OPTIONS[7]:
+        if move == '7' or move in self.MOVE_OPTIONS[7]:
             if board[2][0] == 0:
                 is_valid = True
                 board[2][0] = piece
                 last_move = piece
-        if int(move) == 8 or move in self.MOVE_OPTIONS[8]:
+        if move == '8' or move in self.MOVE_OPTIONS[8]:
             if board[2][1] == 0:
                 is_valid = True
                 board[2][1] = piece
                 last_move = piece
-        if int(move) == 9 or move in self.MOVE_OPTIONS[9]:
+        if move == '9' or move in self.MOVE_OPTIONS[9]:
             if board[2][2] == 0:
                 is_valid = True
                 board[2][2] = piece
