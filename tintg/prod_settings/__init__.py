@@ -21,6 +21,8 @@ SECURE_BROWSER_XSS_FILTER = True
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_HTTPONLY = True
 
+STATIC_URL = '//tintg.s3.amazonaws.com/assets/'
+
 INSTALLED_APPS += (
     'gunicorn',
     'opbeat.contrib.django',
