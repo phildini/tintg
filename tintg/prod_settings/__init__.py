@@ -1,3 +1,4 @@
+import dj_database_url
 from tintg.settings import *
 
 DEBUG = False
