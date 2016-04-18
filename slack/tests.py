@@ -123,7 +123,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': "<@U12345:Stewart> has challenged cal to TicTacToe! It is <@U12345:Stewart>'s turn.",
+            'text': "&lt;@U12345:Stewart&gt; has challenged cal to TicTacToe! It is &lt;@U12345:Stewart&gt;'s turn.",
             'attachments': [
                 {
                     'text': ":white_medium_square: :white_medium_square: :white_medium_square: \n:white_medium_square: :white_medium_square: :white_medium_square: \n:white_medium_square: :white_medium_square: :white_medium_square: "
@@ -162,7 +162,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': "<@U12345:Stewart> has played. It's <@U12345:cal>'s turn now.",
+            'text': "&lt;@U12345:Stewart&gt; has played. It's &lt;@U12345:cal&gt;'s turn now.",
             'attachments': [
                 {
                     'text': ":white_medium_square: :white_medium_square: :x: \n:white_medium_square: :white_medium_square: :white_medium_square: \n:white_medium_square: :white_medium_square: :white_medium_square: "
@@ -234,7 +234,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': '<@U12345:Stewart> has won the game!',
+            'text': '&lt;@U12345:Stewart&gt; has won the game!',
             'attachments': [{
                 'text': ":white_medium_square: :x: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: "
             }]
@@ -304,7 +304,7 @@ class SlashCommandTests(TestCase):
         response = views.slash_command(request)
         self.assertJSONEqual(str(response.content, encoding='utf8'), {
             'response_type': 'in_channel',
-            'text': "It is <@U12345:Stewart>'s turn.",
+            'text': "It is &lt;@U12345:Stewart&gt;'s turn.",
             'attachments': [
                 {
                     'text': ":x: :white_medium_square: :white_medium_square: \n:white_medium_square: :x: :white_medium_square: \n:white_medium_square: :white_medium_square: :o: "

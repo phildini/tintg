@@ -22,6 +22,8 @@ INVALID_MOVE = "Sorry, that's not a valid move."
 
 TICTAC_HELP = """`/tintg tictac [username]` - starts a new game\n`/tintg tictac move [space]` - play in an empty space\n`/tintg tictac show` - show current board state\n`/tintg tictac forfeit` - leave a game you're playing\n`/tintg tictac help` - display this help"""
 
+BAD_PLAYER_NAME = "Hmm... that doesn't seem to be a valid player name."
+
 
 @csrf_exempt
 def slash_command(request):
@@ -142,6 +144,10 @@ def slash_command(request):
                 if game:
                     return JsonResponse({
                         'text': GAME_ALREADY_STARTED
+                    })
+                if len(command_options) > 2:
+                    return JsonResponse({
+                        'text': BAD_PLAYER_NAME
                     })
                 game = Game.objects.start_game(
                     kind=str(Game.TICTACTOE),

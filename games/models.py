@@ -20,7 +20,7 @@ class Player(models.Model):
     @property
     def slack_display(self):
         if self.remote_user_id and self.name:
-            return "<@{}:{}>".format(self.remote_user_id, self.name)
+            return "&lt;@{}:{}&gt;".format(self.remote_user_id, self.name)
         return str(self)
 
 
@@ -161,7 +161,7 @@ class Game(models.Model):
             if list(set([board[0][0], board[1][1], board[2][2]]))[0] != 0:
                 return True
         if len(set([board[0][2], board[1][1], board[2][0]])) == 1:
-            if list(set([board[0][2], board[1][1], board[2][0]]))[0] != 1:
+            if list(set([board[0][2], board[1][1], board[2][0]]))[0] != 0:
                 return True
         return False
 

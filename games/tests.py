@@ -88,5 +88,12 @@ class GameModelTests(TestCase):
             state={'board':board},
         )
         self.assertFalse(game.is_won())
+        board = [['X',0,0],[0,0,0],[0,0,0]]
+        game = Game.objects.create(
+            kind=Game.TICTACTOE,
+            channel='test',
+            state={'board':board},
+        )
+        self.assertFalse(game.is_won())
 
 
