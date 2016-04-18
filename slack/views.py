@@ -28,7 +28,7 @@ def slash_command(request):
 
     if request.method == 'POST':
         try:
-            team = Team.objects.get(slack_id=request.POST.get('token'))
+            team = Team.objects.get(token=request.POST.get('token'))
         except Team.DoesNotExist:
             return JsonResponse({
                 'text': MISSING_TEAM,
