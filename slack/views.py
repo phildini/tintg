@@ -10,7 +10,7 @@ MISSING_TEAM = "Oh dear. Your slack team isn't registered with TINTG. I'm... I'm
 
 HELLO = "Hey there!"
 
-HOW_TO_START = "You can start a game of tic-tac-toe with `/tintg tictac [username]`"
+HOW_TO_START = "You can start a game of tic-tac-toe with `/tintg tictac [username]`\nYou can see help with `/tintg tictac help`."
 
 GAME_ALREADY_STARTED = "There's already a game going in this channel, sorry."
 
