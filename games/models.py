@@ -135,27 +135,41 @@ class Game(models.Model):
 
     def is_won(self):
         board = self.state.get('board')
+        row_tie = False
         # check rows
         for row in board:
             if len(set(row)) == 1:
+                row_tie = False
                 if list(set(row))[0] != 0:
                     return True
+            elif not 0 in list(set(row)):
+                    row_tie = True
         # check columns
-        if len(set([board[0][0], board[1][0], board[2][0]])) == 1:
-            if list(set([board[0][0], board[1][0], board[2][0]]))[0] != 0:
-                return True
-        if len(set([board[0][1], board[1][1], board[2][1]])) == 1:
-            if list(set([board[0][1], board[1][1], board[2][1]]))[0] != 0:
-                return True
-        if len(set([board[0][2], board[1][2], board[2][2]])) == 1:
-            if list(set([board[0][2], board[1][2], board[2][2]]))[0] != 0:
-                return True
+        column_tie = False
+        column_sets = [
+            set([board[0][0], board[1][0], board[2][0]]),
+            set([board[0][1], board[1][1], board[2][1]]),
+            set([board[0][2], board[1][2], board[2][2]]),
+        ]
+        for column in column_sets:
+            if len(column) == 1:
+                if list(column)[0] != 0:
+                    return True
+            elif 0 not in list(column):
+                column_tie = True
         # check diagonals
-        if len(set([board[0][0], board[1][1], board[2][2]])) == 1:
-            if list(set([board[0][0], board[1][1], board[2][2]]))[0] != 0:
-                return True
-        if len(set([board[0][2], board[1][1], board[2][0]])) == 1:
-            if list(set([board[0][2], board[1][1], board[2][0]]))[0] != 0:
-                return True
+        diagonal_tie = False
+        diagonal_sets = [
+            set([board[0][0], board[1][1], board[2][2]]),
+            set([board[0][2], board[1][1], board[2][0]]),
+        ]
+        for diagonal in diagonal_sets:
+            if len(diagonal) == 1:
+                if list(diagonal)[0] != 0:
+                    return True
+            elif not 0 in list(diagonal):
+                diagonal_tie = True
+        if row_tie and column_tie and diagonal_tie:
+            return 'tie'
         return False
 

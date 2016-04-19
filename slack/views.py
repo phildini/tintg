@@ -41,11 +41,14 @@ def slash_command(request):
             return JsonResponse({
                 'text': MISSING_TEAM,
             })
-        command_text = request.POST.get('text')
-        if command_text.startswith('tictac'):
-            command_options = [
-                command for command in command_text.split(' ') if command
-            ]
+        command_options = [
+            command for command in request.POST.get('text').split(' ') if command
+        ]
+        if len(command_options) < 1:
+            return JsonResponse({
+                'text': HOW_TO_START,
+            })
+        if command_options[0] == 'tictac':
             # /tintg tictac
             if len(command_options) < 2:
                 return JsonResponse({
@@ -114,7 +117,18 @@ def slash_command(request):
                     })
                 valid = game.make_move_if_valid(' '.join(command_options[2:]))
                 if valid:
-                    if game.is_won():
+                    win_state = game.is_won()
+                    if win_state == 'tie':
+                        game.is_active = False
+                        game.save()
+                        return JsonResponse({
+                            'response_type': 'in_channel',
+                            'text': "It's a tie!",
+                            'attachments': [{
+                                'text': game.board_state_to_slack(),
+                            }]
+                        })
+                    if win_state:
                         game.is_active = False
                         game.save()
                         return JsonResponse({
@@ -177,7 +191,7 @@ def slash_command(request):
                     ]
                 })
 
-        if command_text.lower() == 'hello':
+        if command_options[0] == 'hello':
             return JsonResponse({
                 'text': HELLO,
             })
@@ -187,7 +201,7 @@ def slash_command(request):
         })
 
 def get_players(game, command_data):
-    player1 = None,
+    player1 = None
     player2 = None
     players = Player.objects.filter(game=game)
     try:
@@ -203,9 +217,10 @@ def get_players(game, command_data):
             )
         except Player.DoesNotExist:
             pass
-    try:
-        player2 = players.get(is_current=False)
-    except Player.DoesNotExist:
-        pass
+    if player1:
+        try:
+            player2 = players.exclude(id=player1.id)[0]
+        except IndexError:
+            pass
 
     return player1, player2
