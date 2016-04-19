@@ -17,12 +17,6 @@ class Player(models.Model):
             return self.remote_user_id
         return "Player"
 
-    @property
-    def slack_display(self):
-        if self.remote_user_id and self.name:
-            return "&lt;@{}:{}&gt;".format(self.remote_user_id, self.name)
-        return str(self)
-
 
 class GameManager(models.Manager):
 
