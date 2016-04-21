@@ -24,6 +24,8 @@ TICTAC_HELP = """`/tintg tictac [username]` - starts a new game\n`/tintg tictac 
 
 BAD_PLAYER_NAME = "Hmm... that doesn't seem to be a valid player name."
 
+PLAYING_YOURSELF = "Sorry, playing against yourself isn't support right now. How would that even work, I wonder? ...goes back to lab..."
+
 
 @csrf_exempt
 def slash_command(request):
@@ -164,6 +166,10 @@ def slash_command(request):
                 if len(command_options) > 2:
                     return JsonResponse({
                         'text': BAD_PLAYER_NAME
+                    })
+                if request.POST.get('user_name').strip('@') == command_options[1].strip('@'):
+                    return JsonResponse({
+                        'text': PLAYING_YOURSELF
                     })
                 game = Game.objects.start_game(
                     kind=str(Game.TICTACTOE),
